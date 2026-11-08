@@ -48,6 +48,7 @@ func _ready() -> void:
 	Global.current_level = null
 	Global.world_num = clamp(Global.world_num, 1, get_world_count())
 	update_title()
+	_add_smb2_button()
 
 func update_title() -> void:
 	SaveManager.apply_save(SaveManager.load_save(Global.current_campaign))
@@ -269,3 +270,22 @@ func check_for_unlocked_achievements() -> void:
 
 func get_room_type() -> Global.Room:
 	return Global.Room.TITLE_SCREEN
+
+
+# SMB2 fork: small tappable button on the title screen (also F2 on keyboards).
+func _add_smb2_button() -> void:
+	var b := Button.new()
+	b.text = "SMB2 TEST"
+	b.focus_mode = Control.FOCUS_NONE
+	b.add_theme_font_size_override("font_size", 8)
+	b.position = Vector2(4, 4)
+	b.size = Vector2(64, 18)
+	b.pressed.connect(_open_smb2)
+	$CanvasLayer.add_child(b)
+
+func _open_smb2() -> void:
+	Global.transition_to_scene("res://Scenes/Levels/SMB2/SMB2Level.tscn")
+
+func _unhandled_key_input(event: InputEvent) -> void:
+	if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_F2:
+		_open_smb2()
