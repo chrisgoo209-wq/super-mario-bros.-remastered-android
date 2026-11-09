@@ -79,6 +79,10 @@ jobs:
           echo -n "$(godot --version | cut -d. -f1-3)" > android/.build_version
           cat android/.build_version; echo
 
+      - name: Make Gradle wrapper executable
+        # git did not keep the executable bit on android/build/gradlew
+        run: chmod +x android/build/gradlew
+
       - name: Disable shader baking for CI
         # The shader baker needs a GPU, which headless CI does not have.
         run: sed -i 's/^shader_baker\/enabled=true/shader_baker\/enabled=false/' export_presets.cfg
