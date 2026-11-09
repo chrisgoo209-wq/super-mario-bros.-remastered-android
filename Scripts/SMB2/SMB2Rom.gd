@@ -26,16 +26,30 @@ const CHARACTER_ORDER := ["mario", "luigi", "toad", "peach"]
 
 ## Poses: four 8x16 sprites (top-left, top-right, bottom-left, bottom-right).
 ## Tile numbers are from the character animation table at 0x1F2F0. -1 = blank.
+## Poses = the ROM's own pose table (frames 0-9, read from a screenshot of the sprite viewer).
+## Each pose is 4 tile bytes: top-left, top-right, bottom-left, bottom-right (8x16 each).
+## -1 = blank (the ROM uses $FB). The table is shared by all four characters; each character
+## only has different graphics.
 const POSES := {
-	"stand":       [0x00, 0x02, 0x04, 0x06],
-	"walk":        [0x00, 0x02, 0x08, 0x0A],
-	"jump":        [0x00, 0x02, 0x14, 0x16],
-	"carry":       [0x0C, 0x0E, 0x10, 0x12],
-	"carry_walk":  [0x0C, 0x0E, 0x08, 0x0A],
-	"carry_jump":  [0x0C, 0x0E, 0x14, 0x16],
-	"duck":        [-1, -1, 0x2C, 0x2C],
+	"stand":       [0x00, 0x02, 0x04, 0x06],   # frame 0
+	"carry":       [0x0C, 0x0E, 0x10, 0x12],   # frame 1
+	"walk":        [0x00, 0x02, 0x08, 0x0A],   # frame 2
+	"carry_walk":  [0x0C, 0x0E, 0x14, 0x16],   # frame 3
+	"duck":        [-1, -1, 0x2C, 0x2C],       # frame 4 (right half is the left half mirrored)
+	"duck_carry":  [-1, -1, 0x2E, 0x2E],       # frame 5
+	"jump":        [0x0C, 0x0E, 0x10, 0x12],   # frame 6 (fist up, same tiles as carry)
+	"carry_jump":  [0x0C, 0x0E, 0x10, 0x12],
+	"climb_a":     [0x30, 0x30, 0x32, 0x32],   # frame 7 (back view, right half mirrored)
+	"climb_b":     [0x30, 0x30, 0x32, 0x32],   # frame 7 with the mirroring swapped
+	"hurt":        [0x20, 0x22, 0x24, 0x26],   # frame 8
+	"lift":        [0x00, 0x02, 0x28, 0x2A],   # frame 9 (reaching down to pull / pick up)
 }
-const POSE_FLIPS := {"duck": [false, false, false, true]}
+const POSE_FLIPS := {
+	"duck": [false, false, false, true],
+	"duck_carry": [false, false, false, true],
+	"climb_a": [false, true, false, true],
+	"climb_b": [true, false, true, false],
+}
 
 ## The game's own pose table (4 tile bytes per frame: top-left, top-right, bottom-left,
 ## bottom-right), copied from the player's ROM at runtime. Used by the sprite viewer.

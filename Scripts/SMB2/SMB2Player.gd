@@ -236,11 +236,15 @@ func _finish(dt: float) -> void:
 
 func _pose() -> String:
 	var holding := carried != null
-	if ducking or pull_time > 0.0:
-		return "duck"
+	if lvl.state == SMB2Level.S_DEAD or invuln > 1.75:
+		return "hurt"
+	if pull_time > 0.0:
+		return "lift"
+	if ducking:
+		return "duck_carry" if holding else "duck"
 	if climbing:
-		# TEMPORARY: arms-up pose that alternates sides, until the real climbing frames are mapped
-		return "carry"
+		# frame 7 of the ROM's pose table; the two climb poses alternate every step
+		return "climb_a" if int(anim_time * 6.0) % 2 == 0 else "climb_b"
 	if not on_floor:
 		return "carry_jump" if holding else "jump"
 	if absf(vel.x) > 8.0:
@@ -264,7 +268,7 @@ func _draw() -> void:
 	# mirrored when the player faces RIGHT (facing > 0).
 	var mirror := facing > 0
 	if climbing:
-		mirror = int(anim_time * 6.0) % 2 == 0
+		mirror = false    # the climbing frames are symmetrical and alternate by themselves
 	if mirror:
 		draw_set_transform(Vector2.ZERO, 0.0, Vector2(-1, 1))
 	var tint := Color.WHITE
