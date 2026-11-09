@@ -41,7 +41,7 @@ offset_right = 256.0
 offset_bottom = 128.0
 script = ExtResource("1_ngr5x")
 campaign_icons = Array[Texture2D]([SubResource("AtlasTexture_6ft85"), SubResource("AtlasTexture_uaivh"), SubResource("AtlasTexture_l766q"), SubResource("AtlasTexture_n66kg"), SubResource("AtlasTexture_q8lhv")])
-campaign = ["SMB1", "SMBLL", "SMBS", "SMBANN", "SMB1"]
+campaign = ["SMB1", "SMBLL", "SMBS", "SMBANN", "SMB1", "SMB1"]
 
 [node name="PanelContainer" type="PanelContainer" parent="."]
 layout_mode = 1
@@ -149,6 +149,19 @@ size_flags_horizontal = 5
 size_flags_vertical = 0
 theme_override_colors/font_shadow_color = Color(0.8901961, 0.54901963, 0.22352941, 1)
 text = "CUSTOM_LEVELS"
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 2
+uppercase = true
+
+[node name="SMB2" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/CampaignNames"]
+visible = false
+custom_minimum_size = Vector2(190, 32)
+layout_mode = 2
+size_flags_horizontal = 5
+size_flags_vertical = 0
+theme_override_colors/font_shadow_color = Color(0.78, 0.17, 0.14, 1)
+text = "SUPER MARIO BROS. 2"
 horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 2

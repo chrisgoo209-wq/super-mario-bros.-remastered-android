@@ -227,7 +227,9 @@ func _draw() -> void:
 	if invuln > 0.0 and int(invuln * 20.0) % 2 == 0:
 		return
 	var tex: Texture2D = frames[_pose()]
-	if facing < 0:
+	# The SMB2 character sprites in the ROM are drawn facing LEFT, so they are
+	# mirrored when the player faces RIGHT (facing > 0).
+	if facing > 0:
 		draw_set_transform(Vector2.ZERO, 0.0, Vector2(-1, 1))
 	draw_texture(tex, Vector2(-8, -32))
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)

@@ -10,9 +10,15 @@ var active := false
 
 var old_campaign := ""
 
-@export var campaign := ["SMB1", "SMBLL", "SMBS", "SMBANN", "Custom"]
+@export var campaign := ["SMB1", "SMBLL", "SMBS", "SMBANN", "Custom", "SMB1"]
+
+## Index of the SMB2 entry (last in the list). It does not change the active campaign,
+## it opens the separate SMB2 game.
+const SMB2_INDEX := 5
+const SMB2_SCENE := "res://Scenes/Levels/SMB2/SMB2Level.tscn"
 
 func _ready() -> void:
+	_refresh_smb2_icon()
 	update()
 	Global.level_theme_changed.connect(update)
 	get_starting_position()
@@ -20,7 +26,9 @@ func _ready() -> void:
 
 func update() -> void:
 	for icon in campaign_icons:
-		icon.atlas = $ResourceGetter.get_resource(icon.atlas)
+		var atlas_icon := icon as AtlasTexture
+		if atlas_icon != null:
+			atlas_icon.atlas = $ResourceGetter.get_resource(atlas_icon.atlas)
 
 func _process(_delta: float) -> void:
 	if active:
@@ -38,7 +46,7 @@ func handle_visuals() -> void:
 func generate_text() -> String:
 	var string := ""
 	string += "◄"
-	for i in 5:
+	for i in campaign.size():
 		if i == selected_index:
 			string += "┼"
 		else:
@@ -46,7 +54,16 @@ func generate_text() -> String:
 	string += "►"
 	return string
 
+## The SMB2 picture is built at runtime (it shows the characters once the player's own ROM is loaded).
+func _refresh_smb2_icon() -> void:
+	var icon := SMB2Icon.make()
+	if campaign_icons.size() > SMB2_INDEX:
+		campaign_icons[SMB2_INDEX] = icon
+	else:
+		campaign_icons.append(icon)
+
 func open() -> void:
+	_refresh_smb2_icon()
 	old_campaign = Global.current_campaign
 	Global.current_game_mode = Global.GameMode.NONE
 	get_starting_position()
@@ -83,6 +100,10 @@ func select() -> void:
 	if selected_index == 4:
 		Global.current_campaign = "SMB1"
 		Global.transition_to_scene("res://Scenes/Levels/CustomLevelMenu.tscn")
+		return
+	if selected_index == SMB2_INDEX:
+		Global.current_campaign = "SMB1"
+		Global.transition_to_scene(SMB2_SCENE)
 		return
 	active = false
 	Settings.file.game.campaign = Global.current_campaign
