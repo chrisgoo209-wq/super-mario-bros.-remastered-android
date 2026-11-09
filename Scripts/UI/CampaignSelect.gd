@@ -18,7 +18,6 @@ const SMB2_INDEX := 5
 const SMB2_SCENE := "res://Scenes/Levels/SMB2/SMB2Level.tscn"
 
 func _ready() -> void:
-	_refresh_smb2_icon()
 	update()
 	Global.level_theme_changed.connect(update)
 	get_starting_position()
@@ -36,12 +35,21 @@ func _process(_delta: float) -> void:
 		handle_visuals()
 
 func handle_visuals() -> void:
-	%Left.texture = campaign_icons[wrap(selected_index - 1, 0, campaign_icons.size())]
-	%Right.texture = campaign_icons[wrap(selected_index + 1, 0, campaign_icons.size())]
-	%Middle.texture = campaign_icons[selected_index]
+	set_icon(%Left, wrap(selected_index - 1, 0, campaign_icons.size()))
+	set_icon(%Right, wrap(selected_index + 1, 0, campaign_icons.size()))
+	set_icon(%Middle, selected_index)
 	%BarLabel.text = generate_text()
 	for i in %CampaignNames.get_child_count():
 		%CampaignNames.get_child(i).visible = selected_index == i
+
+## The SMB2 picture is a smooth illustration, so it needs linear filtering when it is
+## scaled down. The other icons are pixel art and keep nearest-neighbour filtering.
+func set_icon(rect: TextureRect, index: int) -> void:
+	rect.texture = campaign_icons[index]
+	if index == SMB2_INDEX:
+		rect.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+	else:
+		rect.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 
 func generate_text() -> String:
 	var string := ""
@@ -54,16 +62,7 @@ func generate_text() -> String:
 	string += "►"
 	return string
 
-## The SMB2 picture is built at runtime (it shows the characters once the player's own ROM is loaded).
-func _refresh_smb2_icon() -> void:
-	var icon := SMB2Icon.make()
-	if campaign_icons.size() > SMB2_INDEX:
-		campaign_icons[SMB2_INDEX] = icon
-	else:
-		campaign_icons.append(icon)
-
 func open() -> void:
-	_refresh_smb2_icon()
 	old_campaign = Global.current_campaign
 	Global.current_game_mode = Global.GameMode.NONE
 	get_starting_position()

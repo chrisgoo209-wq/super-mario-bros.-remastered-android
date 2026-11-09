@@ -23,5 +23,6 @@ Open it from the title screen: tap the **SMB2 TEST** button (top-left), or press
 ## Status
 - Level layout is original, built from a reference map. It is NOT read from the ROM.
 - Player sprites come from the ROM at runtime. Tiles, enemies and items are placeholder art drawn in code.
+- The SMB2 entry on the Select Game screen uses the box art tile you added to Assets/Sprites/UI/CampaignIcons.png.
 - Tested headless in Godot 4.5 with a synthetic ROM (select, play, die, retry, game over, wide-screen layout).
   Not yet tested on a real phone or with a real SMB2 ROM.

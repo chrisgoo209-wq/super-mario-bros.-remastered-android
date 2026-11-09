@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3 uid="uid://c7w8dmlmj0hoh"]
+[gd_scene load_steps=15 format=3 uid="uid://c7w8dmlmj0hoh"]
 
 [ext_resource type="Script" uid="uid://cae4v54jq1gs3" path="res://Scripts/UI/CampaignSelect.gd" id="1_ngr5x"]
 [ext_resource type="StyleBox" uid="uid://comkghpj0djcl" path="res://Resources/UI/Panel.tres" id="2_36wrd"]
@@ -9,30 +9,34 @@
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_6ft85"]
 atlas = ExtResource("3_6ft85")
-region = Rect2(0, 0, 68, 68)
+region = Rect2(0, 0, 544, 544)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_uaivh"]
 atlas = ExtResource("3_6ft85")
-region = Rect2(68, 0, 68, 68)
+region = Rect2(544, 0, 544, 544)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_l766q"]
 atlas = ExtResource("3_6ft85")
-region = Rect2(136, 0, 68, 68)
+region = Rect2(1088, 0, 544, 544)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_n66kg"]
 atlas = ExtResource("3_6ft85")
-region = Rect2(204, 0, 68, 68)
+region = Rect2(1632, 0, 544, 544)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_q8lhv"]
 atlas = ExtResource("3_6ft85")
-region = Rect2(272, 0, 68, 68)
+region = Rect2(2176, 0, 544, 544)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_smb2"]
+atlas = ExtResource("3_6ft85")
+region = Rect2(2720, 0, 544, 544)
 
 [sub_resource type="StyleBoxLine" id="StyleBoxLine_0j631"]
 color = Color(1, 1, 1, 1)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_1wxv0"]
 atlas = ExtResource("3_6ft85")
-region = Rect2(0, 0, 68, 68)
+region = Rect2(0, 0, 544, 544)
 
 [node name="CampaignSelect" type="Control"]
 layout_mode = 3
@@ -40,7 +44,7 @@ anchors_preset = 0
 offset_right = 256.0
 offset_bottom = 128.0
 script = ExtResource("1_ngr5x")
-campaign_icons = Array[Texture2D]([SubResource("AtlasTexture_6ft85"), SubResource("AtlasTexture_uaivh"), SubResource("AtlasTexture_l766q"), SubResource("AtlasTexture_n66kg"), SubResource("AtlasTexture_q8lhv")])
+campaign_icons = Array[Texture2D]([SubResource("AtlasTexture_6ft85"), SubResource("AtlasTexture_uaivh"), SubResource("AtlasTexture_l766q"), SubResource("AtlasTexture_n66kg"), SubResource("AtlasTexture_q8lhv"), SubResource("AtlasTexture_smb2")])
 campaign = ["SMB1", "SMBLL", "SMBS", "SMBANN", "SMB1", "SMB1"]
 
 [node name="PanelContainer" type="PanelContainer" parent="."]
@@ -160,7 +164,7 @@ custom_minimum_size = Vector2(190, 32)
 layout_mode = 2
 size_flags_horizontal = 5
 size_flags_vertical = 0
-theme_override_colors/font_shadow_color = Color(0.78, 0.17, 0.14, 1)
+theme_override_colors/font_shadow_color = Color(0.7, 0.1, 0.1, 1)
 text = "SUPER MARIO BROS. 2"
 horizontal_alignment = 1
 vertical_alignment = 1
@@ -186,20 +190,24 @@ alignment = 1
 unique_name_in_owner = true
 modulate = Color(0.5370987, 0.5370987, 0.5370987, 1)
 layout_mode = 2
+custom_minimum_size = Vector2(68, 68)
 size_flags_horizontal = 0
 size_flags_vertical = 4
 texture = SubResource("AtlasTexture_1wxv0")
-stretch_mode = 2
+expand_mode = 1
+stretch_mode = 0
 script = ExtResource("4_uaivh")
 metadata/_custom_type_script = "uid://ca3bew33g45eq"
 
 [node name="Middle" type="TextureRect" parent="PanelContainer/MarginContainer/VBoxContainer/MarginContainer/HBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
+custom_minimum_size = Vector2(68, 68)
 size_flags_horizontal = 6
 size_flags_vertical = 0
 texture = SubResource("AtlasTexture_1wxv0")
-stretch_mode = 2
+expand_mode = 1
+stretch_mode = 0
 script = ExtResource("4_uaivh")
 metadata/_custom_type_script = "uid://ca3bew33g45eq"
 
@@ -207,10 +215,12 @@ metadata/_custom_type_script = "uid://ca3bew33g45eq"
 unique_name_in_owner = true
 modulate = Color(0.5411765, 0.5411765, 0.5411765, 1)
 layout_mode = 2
+custom_minimum_size = Vector2(68, 68)
 size_flags_horizontal = 0
 size_flags_vertical = 4
 texture = SubResource("AtlasTexture_1wxv0")
-stretch_mode = 2
+expand_mode = 1
+stretch_mode = 0
 script = ExtResource("4_uaivh")
 metadata/_custom_type_script = "uid://ca3bew33g45eq"
 
@@ -227,7 +237,7 @@ vertical_alignment = 2
 
 [node name="LabelFontChanger" type="Node" parent="." node_paths=PackedStringArray("labels")]
 script = ExtResource("6_1wxv0")
-labels = [NodePath("../PanelContainer/MarginContainer/VBoxContainer/CampaignNames/SMB1"), NodePath("../PanelContainer/MarginContainer/VBoxContainer/SelectWorld"), NodePath("../PanelContainer/MarginContainer/VBoxContainer/CampaignNames/SMBLL"), NodePath("../PanelContainer/MarginContainer/VBoxContainer/CampaignNames/SMBS"), NodePath("../PanelContainer/MarginContainer/VBoxContainer/CampaignNames/SMBANN"), NodePath("../PanelContainer/MarginContainer/VBoxContainer/CampaignNames/Custom"), NodePath("../PanelContainer/MarginContainer/VBoxContainer/BarLabel")]
+labels = [NodePath("../PanelContainer/MarginContainer/VBoxContainer/CampaignNames/SMB1"), NodePath("../PanelContainer/MarginContainer/VBoxContainer/SelectWorld"), NodePath("../PanelContainer/MarginContainer/VBoxContainer/CampaignNames/SMBLL"), NodePath("../PanelContainer/MarginContainer/VBoxContainer/CampaignNames/SMBS"), NodePath("../PanelContainer/MarginContainer/VBoxContainer/CampaignNames/SMBANN"), NodePath("../PanelContainer/MarginContainer/VBoxContainer/CampaignNames/Custom"), NodePath("../PanelContainer/MarginContainer/VBoxContainer/CampaignNames/SMB2"), NodePath("../PanelContainer/MarginContainer/VBoxContainer/BarLabel")]
 metadata/_custom_type_script = "uid://co6tjg3w6qpd8"
 
 [node name="ResourceGetter" type="Node" parent="."]
