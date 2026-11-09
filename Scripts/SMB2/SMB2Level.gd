@@ -29,6 +29,7 @@ const S_PLAY := 2
 const S_DEAD := 3
 const S_CLEAR := 4
 const S_OVER := 5
+const S_SHEET := 6          # sprite viewer (tools for mapping the poses)
 
 const SKY := Color8(60, 188, 252)
 
@@ -50,6 +51,12 @@ var picker = null             # Android file picker plugin, if present
 var rom_error := ""
 var rom_unverified := false
 var _last_pick_ms := 0
+var sheet_page := 0
+var sheet_char := 0
+var _sheet_cache := {}
+const SHEET_FRAMES_PER_PAGE := 10
+const SHEET_FRAME_PAGES := 6
+const SHEET_PAGES := 8          # 6 pages of pose-table frames + 2 raw tile pages
 
 const TUFT_COLUMNS := [4, 12, 16, 29, 36, 44, 52, 57, 62, 75, 81, 86, 101, 112]
 const CHERRY_SPOTS := [[9, 9], [15, 10], [25, 8], [37, 9], [45, 9], [55, 8], [64, 9], [76, 7], [85, 10], [98, 6]]
@@ -330,6 +337,8 @@ func _physics_process(dt: float) -> void:
 	match state:
 		S_SELECT:
 			_select_input()
+		S_SHEET:
+			_sheet_input()
 		S_PLAY:
 			_play(dt)
 		S_DEAD:
@@ -353,6 +362,62 @@ func _select_input() -> void:
 		select_index = wrapi(select_index + 1, 0, 4)
 	if Input.is_action_just_pressed("ui_accept") or Input.is_action_just_pressed("jump_0"):
 		start_play(SMB2Rom.CHARACTER_ORDER[select_index])
+	if Input.is_action_just_pressed("action_0"):
+		sheet_char = select_index
+		sheet_page = 0
+		state = S_SHEET
+
+## Sprite viewer: LEFT/RIGHT character, JUMP next page, UP previous page, B back.
+func _sheet_input() -> void:
+	if Input.is_action_just_pressed("ui_left"):
+		sheet_char = wrapi(sheet_char - 1, 0, 4)
+	if Input.is_action_just_pressed("ui_right"):
+		sheet_char = wrapi(sheet_char + 1, 0, 4)
+	if Input.is_action_just_pressed("jump_0") or Input.is_action_just_pressed("ui_accept"):
+		sheet_page = wrapi(sheet_page + 1, 0, SHEET_PAGES)
+	if Input.is_action_just_pressed("move_up_0") or Input.is_action_just_pressed("ui_up"):
+		sheet_page = wrapi(sheet_page - 1, 0, SHEET_PAGES)
+	if Input.is_action_just_pressed("action_0"):
+		state = S_SELECT
+
+func _sheet_texture(id: String, tiles: Array) -> Texture2D:
+	var key := id + str(tiles)
+	if not _sheet_cache.has(key):
+		_sheet_cache[key] = SMB2Rom.make_frame(id, tiles, [false, false, false, false])
+	return _sheet_cache[key]
+
+func _hex(v: int) -> String:
+	return "%02X" % v
+
+func _draw_sheet(vs: Vector2) -> void:
+	var id: String = SMB2Rom.CHARACTER_ORDER[sheet_char]
+	var ox := (vs.x - 256.0) * 0.5
+	hud.draw_rect(Rect2(0, 0, vs.x, vs.y), Color.BLACK)
+	var font := ThemeDB.fallback_font
+	if sheet_page < SHEET_FRAME_PAGES:
+		_text("%s  FRAMES %d-%d" % [SMB2Rom.CHARACTERS[id].name, sheet_page * SHEET_FRAMES_PER_PAGE, sheet_page * SHEET_FRAMES_PER_PAGE + SHEET_FRAMES_PER_PAGE - 1], 12, 8)
+		for k in SHEET_FRAMES_PER_PAGE:
+			var fi := sheet_page * SHEET_FRAMES_PER_PAGE + k
+			var t := SMB2Rom.table_frame(fi)
+			if t.is_empty():
+				continue
+			var x := ox + 4.0 + k * 25.0
+			hud.draw_string(font, Vector2(x, 30), str(fi), HORIZONTAL_ALIGNMENT_LEFT, -1, 8, Color.YELLOW)
+			hud.draw_texture(_sheet_texture(id, t), Vector2(x, 36))
+			for r in 4:
+				hud.draw_string(font, Vector2(x, 90.0 + r * 10.0), _hex(t[r]), HORIZONTAL_ALIGNMENT_LEFT, -1, 8, Color(0.8, 0.8, 0.8))
+	else:
+		var base := (sheet_page - SHEET_FRAME_PAGES) * 0x40
+		_text("%s  TILES %s-%s" % [SMB2Rom.CHARACTERS[id].name, _hex(base), _hex(base + 0x3F)], 12, 8)
+		for n in 32:
+			var tn := base + n * 2
+			var cx := ox + 8.0 + (n % 8) * 30.0
+			var cy := 28.0 + (n / 8) * 42.0
+			hud.draw_string(font, Vector2(cx, cy), _hex(tn), HORIZONTAL_ALIGNMENT_LEFT, -1, 6, Color.YELLOW)
+			var tex := _sheet_texture(id, [tn, -1, -1, -1])
+			hud.draw_texture_rect_region(tex, Rect2(cx, cy + 4.0, 8, 16), Rect2(0, 0, 8, 16))
+	_text("A: NEXT  UP: PREV  B: BACK", 226, 8, Color(0.6, 0.6, 0.6))
+	_text("LEFT/RIGHT: CHARACTER", 236, 8, Color(0.6, 0.6, 0.6))
 
 func _play(dt: float) -> void:
 	player.step(dt)
@@ -486,6 +551,8 @@ func _draw_hud() -> void:
 				_text(rom_error, 150, 8, Color8(255, 90, 90))
 			_text("(NO ROM DATA IS INCLUDED IN THIS GAME)", 170, 8, Color(0.6, 0.6, 0.6))
 			_text("START / ESC: BACK", 200, 8, Color(0.6, 0.6, 0.6))
+		S_SHEET:
+			_draw_sheet(vs)
 		S_SELECT:
 			var ox := (vs.x - 256.0) * 0.5
 			hud.draw_rect(Rect2(0, 0, vs.x, vs.y), Color.BLACK)
@@ -502,7 +569,7 @@ func _draw_hud() -> void:
 				if i == select_index:
 					hud.draw_colored_polygon(PackedVector2Array([Vector2(x + 4, 90), Vector2(x + 12, 90), Vector2(x + 8, 96)]), Color.YELLOW)
 			_text("LEFT / RIGHT + JUMP", 190, 8, Color(0.7, 0.7, 0.7))
-			_text("START: BACK", 204, 8, Color(0.5, 0.5, 0.5))
+			_text("START: BACK   B: SPRITE VIEWER", 204, 8, Color(0.5, 0.5, 0.5))
 			if rom_unverified:
 				_text("ROM NOT RECOGNISED", 220, 8, Color8(255, 200, 80))
 				_text("SPRITES MAY LOOK WRONG", 232, 8, Color8(255, 200, 80))
@@ -515,8 +582,9 @@ func _draw_hud() -> void:
 			hud.draw_string(ThemeDB.fallback_font, Vector2(0, 14), "CHERRIES %d" % cherries, HORIZONTAL_ALIGNMENT_RIGHT, vs.x - 8.0, 8, Color.WHITE)
 			hud.draw_string(ThemeDB.fallback_font, Vector2(0, 26), "WORLD 1-1", HORIZONTAL_ALIGNMENT_RIGHT, vs.x - 8.0, 8, Color.WHITE)
 			if state == S_PLAY and state_time < 6.0:
-				_text("DOWN ON GRASS: PULL VEGGIE", 200, 8, Color(1, 1, 1, 0.9))
-				_text("B: LIFT / THROW   UP: VINE", 212, 8, Color(1, 1, 1, 0.9))
+				_text("B: PULL / LIFT / THROW", 188, 8, Color(1, 1, 1, 0.9))
+				_text("HOLD B: RUN   UP: VINE", 200, 8, Color(1, 1, 1, 0.9))
+				_text("HOLD DOWN THEN JUMP: SUPER", 212, 8, Color(1, 1, 1, 0.9))
 				_text("START: EXIT", 224, 8, Color(1, 1, 1, 0.9))
 			if state == S_DEAD:
 				_text("TRY AGAIN", 120, 10)

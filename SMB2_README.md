@@ -11,9 +11,14 @@ Open it from the title screen: tap the **SMB2 TEST** button (top-left), or press
   character screen shows a yellow "ROM NOT RECOGNISED" note. If the sprites look like noise, it is the wrong dump.
 
 ## Controls (touch)
-- D-pad: move. **A**: jump. **B**: lift / throw. **Down** on a grass tuft: pull a vegetable. **Up** on a vine: climb.
-- **START**: leave the level and go back to the title screen. (B must not leave the level, because the
-  on-screen B button also sends the `ui_back` action.)
+- D-pad: move. **A**: jump (Peach: hold A in the air to float).
+- **B**: pull a vegetable (stand on a grass tuft), pick up an enemy you are standing on, throw what you carry.
+  Hold B to run (walk 1.5 px/frame, run 2.25 px/frame, as in the real game).
+- **Super jump**: hold **Down** until the character flashes (about 1 second), then press A.
+- **Up** on a vine: climb.
+- **START**: leave the level and go back to the title screen.
+- On the character screen, **B** opens the *sprite viewer*, a tool that shows the ROM's pose table and tiles
+  so the poses can be mapped exactly.
 
 ## Building the Android APK without a PC
 1. On GitHub open the **Actions** tab, choose **Android APK**, tap **Run workflow**.

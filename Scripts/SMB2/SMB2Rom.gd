@@ -37,7 +37,13 @@ const POSES := {
 }
 const POSE_FLIPS := {"duck": [false, false, false, true]}
 
+## The game's own pose table (4 tile bytes per frame: top-left, top-right, bottom-left,
+## bottom-right), copied from the player's ROM at runtime. Used by the sprite viewer.
+const POSE_TABLE_OFFSET := 0x1F2F4
+const POSE_TABLE_BYTES := 0x100
+
 static var chr := PackedByteArray()
+static var pose_table := PackedByteArray()
 static var rom_path := ""
 
 static var signature_ok := true
@@ -71,6 +77,7 @@ static func load_from_path(path: String) -> bool:
 		return false
 	signature_ok = has_signature(data)
 	chr = data.slice(CHR_FILE_OFFSET)
+	pose_table = data.slice(POSE_TABLE_OFFSET, POSE_TABLE_OFFSET + POSE_TABLE_BYTES)
 	rom_path = path
 	return true
 
@@ -104,6 +111,8 @@ static func nes_color(index: int) -> Color:
 	return Color8(NES_RGB[i], NES_RGB[i + 1], NES_RGB[i + 2])
 
 static func _blit_tile(img: Image, offset: int, ox: int, oy: int, pal: Array[Color], flip: bool) -> void:
+	if offset < 0 or offset + 16 > chr.size():
+		return
 	for y in 8:
 		var b0 := chr[offset + y]
 		var b1 := chr[offset + y + 8]
@@ -130,6 +139,13 @@ static func make_frame(char_id: String, tiles: Array, flips: Array) -> ImageText
 			var offset: int = int(def.bank) + (t + int(def.tile) + half) * 16
 			_blit_tile(img, offset, ox, oy + half * 8, pal, flips[k])
 	return ImageTexture.create_from_image(img)
+
+## Tile bytes of frame `index` from the ROM's pose table, or [] past the end.
+static func table_frame(index: int) -> Array:
+	var o := index * 4
+	if o + 4 > pose_table.size():
+		return []
+	return [pose_table[o], pose_table[o + 1], pose_table[o + 2], pose_table[o + 3]]
 
 static func build_frames(char_id: String) -> Dictionary:
 	var frames := {}
