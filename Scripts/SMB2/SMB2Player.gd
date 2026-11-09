@@ -244,7 +244,7 @@ func _pose() -> String:
 		return "duck_carry" if holding else "duck"
 	if climbing:
 		# frame 7 of the ROM's pose table; the two climb poses alternate every step
-		return "climb_a" if int(anim_time * 6.0) % 2 == 0 else "climb_b"
+		return "climb_b"   # back view: hands on the outside (the other mirroring looked like a face)
 	if not on_floor:
 		return "carry_jump" if holding else "jump"
 	if absf(vel.x) > 8.0:
