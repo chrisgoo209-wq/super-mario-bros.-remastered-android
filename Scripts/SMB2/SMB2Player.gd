@@ -38,6 +38,9 @@ var carried: SMB2Mob = null
 var standing_on: SMB2Mob = null
 var pull_time := 0.0          # > 0 while pulling a vegetable out of the grass
 var duck_time := 0.0
+var throw_time := 0.0         # > 0 right after a throw (throw pose)
+var climb_flip := false       # the climb sprite is mirrored every step
+var climb_step := 0.0
 var float_time := 0.0
 var anim_time := 0.0
 var invuln := 0.0
@@ -79,6 +82,8 @@ func step(dt: float) -> void:
 		return
 
 	# --- B on a grass tuft: pull a vegetable ---
+	if throw_time > 0.0:
+		throw_time -= dt
 	if pull_time > 0.0:
 		pull_time -= dt
 		if pull_time <= 0.0:
@@ -194,6 +199,11 @@ func step(dt: float) -> void:
 
 func _climb(dt: float, up: bool, down: bool, axis: int, jump_pressed: bool) -> void:
 	var vy := (-1 if up else 0) + (1 if down else 0)
+	if vy != 0:
+		climb_step += dt
+		if climb_step >= 8.0 / 60.0:
+			climb_step = 0.0
+			climb_flip = not climb_flip
 	position.y += vy * 55.0 * dt
 	var vt := lvl.vine_at(position - Vector2(0, 2))
 	if vt == Vector2i(-1, -1) and vy < 0:
@@ -212,6 +222,7 @@ func _climb(dt: float, up: bool, down: bool, axis: int, jump_pressed: bool) -> v
 func _throw(up: bool) -> void:
 	var m := carried
 	carried = null
+	throw_time = 0.25
 	m.mode = SMB2Mob.Mode.THROWN
 	m.dir = facing
 	m.position = position + Vector2(facing * 8.0, -STAND_H)
@@ -236,15 +247,16 @@ func _finish(dt: float) -> void:
 
 func _pose() -> String:
 	var holding := carried != null
-	if lvl.state == SMB2Level.S_DEAD or invuln > 1.75:
-		return "hurt"
+	if lvl.state == SMB2Level.S_DEAD:
+		return "dead"
 	if pull_time > 0.0:
 		return "lift"
+	if throw_time > 0.0:
+		return "throw"
 	if ducking:
 		return "duck_carry" if holding else "duck"
 	if climbing:
-		# frame 7 of the ROM's pose table; the two climb poses alternate every step
-		return "climb_b"   # back view: hands on the outside (the other mirroring looked like a face)
+		return "climb"
 	if not on_floor:
 		return "carry_jump" if holding else "jump"
 	if absf(vel.x) > 8.0:
@@ -268,7 +280,7 @@ func _draw() -> void:
 	# mirrored when the player faces RIGHT (facing > 0).
 	var mirror := facing > 0
 	if climbing:
-		mirror = false    # the climbing frames are symmetrical and alternate by themselves
+		mirror = climb_flip   # the real game flips the whole sprite every 8 frames while climbing
 	if mirror:
 		draw_set_transform(Vector2.ZERO, 0.0, Vector2(-1, 1))
 	var tint := Color.WHITE

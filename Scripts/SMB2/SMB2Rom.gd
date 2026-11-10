@@ -31,24 +31,23 @@ const CHARACTER_ORDER := ["mario", "luigi", "toad", "peach"]
 ## -1 = blank (the ROM uses $FB). The table is shared by all four characters; each character
 ## only has different graphics.
 const POSES := {
-	"stand":       [0x00, 0x02, 0x04, 0x06],   # frame 0
-	"carry":       [0x0C, 0x0E, 0x10, 0x12],   # frame 1
-	"walk":        [0x00, 0x02, 0x08, 0x0A],   # frame 2
-	"carry_walk":  [0x0C, 0x0E, 0x14, 0x16],   # frame 3
+	"stand":       [0x00, 0x02, 0x08, 0x0A],   # frame 2 (standing)
+	"walk":        [0x00, 0x02, 0x04, 0x06],   # frame 0 (walking; alternates with standing)
+	"carry":       [0x0C, 0x0E, 0x14, 0x16],   # frame 3 (standing, carrying)
+	"carry_walk":  [0x0C, 0x0E, 0x10, 0x12],   # frame 1 (walking, carrying)
 	"duck":        [-1, -1, 0x2C, 0x2C],       # frame 4 (right half is the left half mirrored)
 	"duck_carry":  [-1, -1, 0x2E, 0x2E],       # frame 5
 	"jump":        [0x0C, 0x0E, 0x10, 0x12],   # frame 6 (fist up, same tiles as carry)
 	"carry_jump":  [0x0C, 0x0E, 0x10, 0x12],
-	"climb_a":     [0x30, 0x30, 0x32, 0x32],   # frame 7 (back view, right half mirrored)
-	"climb_b":     [0x30, 0x30, 0x32, 0x32],   # frame 7 with the mirroring swapped
-	"hurt":        [0x20, 0x22, 0x24, 0x26],   # frame 8
-	"lift":        [0x00, 0x02, 0x28, 0x2A],   # frame 9 (reaching down to pull / pick up)
+	"dead":        [0x30, 0x30, 0x32, 0x32],   # frame 7 (death; right half mirrored)
+	"lift":        [0x20, 0x22, 0x24, 0x26],   # frame 8 (pulling a vegetable out of the ground)
+	"throw":       [0x00, 0x02, 0x28, 0x2A],   # frame 9
+	"climb":       [0x18, 0x1A, 0x1C, 0x1E],   # frame 10 (the whole sprite is mirrored every step)
 }
 const POSE_FLIPS := {
 	"duck": [false, false, false, true],
 	"duck_carry": [false, false, false, true],
-	"climb_a": [false, true, false, true],
-	"climb_b": [true, false, true, false],
+	"dead": [false, true, false, true],
 }
 
 ## The game's own pose table (4 tile bytes per frame: top-left, top-right, bottom-left,
